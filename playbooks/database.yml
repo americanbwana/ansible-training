@@ -1,0 +1,17 @@
+---
+  - hosts: database
+    tasks:
+      - name: Install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: Install llibselinux-python
+        yum: name=libselinux-python state=present
+
+      - name: Install Mysql repo
+        yum: name=http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
+
+      - name: install mysql-server
+        yum: name=mysql-server state=present
+
+      - name: ensure mysqld started
+        service: name=mysqld state=started enabled=yes

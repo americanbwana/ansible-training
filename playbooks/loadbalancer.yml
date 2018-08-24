@@ -1,0 +1,11 @@
+---
+  - hosts: loadbalancer
+    tasks:
+      - name: install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: install ngix
+        yum: name=nginx state=present update_cache=yes
+
+      - name: ensure nginx started
+        service: name=nginx state=started enabled=yes
