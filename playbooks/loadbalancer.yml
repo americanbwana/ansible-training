@@ -7,5 +7,19 @@
       - name: install ngix
         yum: name=nginx state=present update_cache=yes
 
+      - name: install libselinux-python
+        yum: name=libselinux-python state=present
+
       - name: ensure nginx started
         service: name=nginx state=started enabled=yes
+
+      - name: copy generic nginx.conf to lb
+        copy: src=files/nginx.conf dest=/etc/nginx/conf.d/ mode=0644
+
+      - name: configure nginx site
+        template: src=templates/nginx.conf.j2 dest=/etc/nginx/conf.d/demo.conf  mode=0644 force=yes
+        notify: restart nginx
+
+    handlers:
+      - name: restart nginx
+        service: name=nginx state=restarted
