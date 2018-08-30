@@ -1,0 +1,29 @@
+---
+      - name: install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: install tools
+        yum: name={{item}}
+        with_items:
+          - python-httplib2
+
+      - name: install ngix
+        yum: name=nginx state=present update_cache=yes
+
+      - name: install libselinux-python
+        yum: name=libselinux-python state=present
+
+      - name: copy generic nginx.conf to lb
+        copy: src=files/nginx.conf dest=/etc/nginx/nginx.conf mode=0644 force=yes
+
+      - name: remove old sites
+        shell: rm -rf /etc/nginx/conf.d/*
+
+      - name: configure nginx site
+        template: src=nginx.conf.j2 dest=/etc/nginx/conf.d/{{ item.key }}.conf   mode=0644 force=yes
+        # dest=/etc/nginx/conf.d/demo.conf  mode=0644 force=yes
+        with_dict: "{{ sites }}"
+        notify: restart nginx
+
+      - name: ensure nginx started
+        service: name=nginx state=started enabled=yes

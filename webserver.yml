@@ -1,0 +1,5 @@
+---
+  - hosts: webserver
+    roles:
+      - httpd
+      - demo_app

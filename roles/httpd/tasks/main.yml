@@ -1,0 +1,29 @@
+---
+      - name: Install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: install web components
+        yum: name={{item}} state=present
+        with_items:
+          - httpd
+          - mod_wsgi
+          - libselinux-python
+
+      - name: ensure mod_wsgi enabled
+        apache2_module: state=present name=wsgi
+        notify: restart httpd
+
+      - name: create sites-available
+        file:
+          path: /etc/httpd/sites-available
+          state: directory
+          mode: 0755
+
+      - name: create sites-enabled
+        file:
+          path: /etc/httpd/sites-enabled
+          state: directory
+          mode: 0755
+
+      - name: ensure httpd started
+        service: name=httpd state=started enabled=yes

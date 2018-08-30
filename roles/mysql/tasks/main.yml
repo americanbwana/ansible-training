@@ -1,0 +1,30 @@
+---
+      - name: Install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: Install tools
+        yum: name={{item}} state=present update_cache=yes
+        with_items:
+          - libselinux-python
+          - MySQL-python
+
+      - name: Install Mysql repo
+        yum: name=http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
+
+      - name: install mysql-server
+        yum: name=mysql-server state=present
+
+      - name: bind all mysql addresses
+        lineinfile: dest=/etc/my.cnf regexp=^bind-address
+                    line="bind-address = {{ ansible_ens192.ipv4.address }}"
+        notify: restart mysqld
+
+      - name: ensure mysqld started
+        service: name=mysqld state=started enabled=yes
+
+      - name: create database
+        mysql_db: name={{ db_name }} state=present
+
+      - name: create db user
+        mysql_user: name={{ db_user_name }} password={{ db_user_pass }} priv={{ db_user_name }}.*:ALL
+                    host='{{ db_user_host }}'

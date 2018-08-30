@@ -1,0 +1,23 @@
+---
+      - name: Install epel-release
+        yum: name=epel-release state=present update_cache=yes
+
+      - name: install web components
+        yum: name={{item}} state=present
+        with_items:
+          - python-pip
+          - python-virtualenv
+          - libselinux-python
+          - MySQL-python
+
+      - name: copy demo app to source
+        copy: src=demo/app/ dest=/var/www/demo mode=0755
+        notify: restart httpd
+
+      - name: copy wsgi to host 
+        template: src=demo.wsgi.j2 dest=/var/www/demo/demo.wsgi mode=0755
+        notify: restart httpd
+
+      - name: setup python virtualenv
+        pip: requirements=/var/www/demo/requirements.txt virtualenv=/var/www/demo/.venv state=forcereinstall
+        notify: restart httpd
